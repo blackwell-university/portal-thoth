@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Institucional B2B</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(135deg, #e4efe9 0%, #d4e0eb 100%);
+            color: #1a365d;
+            font-size: 0.95rem;
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+        
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 30px rgba(26, 54, 93, 0.05);
+            padding: 1.5rem;
+        }
+
+        /* Top Header Area */
+        .top-header { padding: 2rem 0 1rem 0; }
+        .greeting-sub { color: #ec8028; font-weight: 500; margin-bottom: 0px; font-size: 0.95rem; }
+        .greeting-title { font-weight: 700; font-size: 2.2rem; letter-spacing: -0.5px; color: #1a365d; }
+        
+        .profile-badge {
+            background: rgba(255,255,255,0.8);
+            border-radius: 30px;
+            padding: 0.4rem 0.8rem;
+            display: inline-flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        .profile-badge img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
+        
+        /* Modern Tabs */
+        .custom-tabs {
+            display: inline-flex;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 5px;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+        .custom-tabs::-webkit-scrollbar { display: none; }
+        .custom-tabs .nav-link {
+            border: none; color: #1a365d; font-weight: 500; border-radius: 15px; padding: 0.6rem 1.5rem; cursor: pointer; transition: all 0.3s; flex-shrink: 0;
+        }
+        .custom-tabs .nav-link.active {
+            background: #fff; color: #ec8028; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        /* Buttons */
+        .btn-primary { background-color: #ec8028; border: none; border-radius: 14px; padding: 0.6rem 1.2rem; font-weight: 500; color: #fff; box-shadow: 0 4px 15px rgba(236, 128, 40, 0.3); transition: all 0.3s; }
+        .btn-primary:hover { transform: translateY(-2px); background-color: #d16d1f; box-shadow: 0 6px 20px rgba(236, 128, 40, 0.4); }
+        .btn-outline-secondary { border-radius: 14px; border-color: rgba(26,54,93,0.2); color: #1a365d; }
+        .btn-outline-secondary:hover { background: rgba(26,54,93,0.05); border-color: rgba(26,54,93,0.4); color: #1a365d;}
+
+        /* Tables & Search */
+        .table { --bs-table-bg: transparent; margin-bottom: 0; white-space: nowrap;}
+        .table thead th { border-bottom: 2px solid rgba(26,54,93,0.1); color: #1a365d; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; padding-bottom: 1rem;}
+        .table tbody td { border-bottom: 1px solid rgba(26,54,93,0.05); padding: 1rem 0.5rem; vertical-align: middle; }
+        .table tbody tr:last-child td { border-bottom: none; }
+        .search-icon { border-radius: 12px 0 0 12px !important; background: rgba(255,255,255,0.8); border: 1px solid rgba(26, 54, 93, 0.15); border-right: none;}
+        .search-input { border-radius: 0 12px 12px 0 !important; border-left: none; padding-left: 0;}
+        .pagination-btn { border-radius: 8px; width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-weight: 500; }
+        
+        /* Forms & Inputs */
+        .form-label { font-size: 0.85rem; font-weight: 500; color: #1a365d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; opacity: 0.8;}
+        .form-control, .form-select { border-radius: 12px; border: 1px solid rgba(26, 54, 93, 0.15); background: rgba(255,255,255,0.8); padding: 0.7rem 1rem; color: #1a365d; }
+        .form-control:focus, .form-select:focus { border-color: #ec8028; box-shadow: 0 0 0 4px rgba(236, 128, 40, 0.1); background: #fff; }
+        .section-title { font-size: 1.1rem; font-weight: 600; color: #ec8028; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 8px;}
+        
+        /* Utils */
+        .badge { padding: 0.5em 0.8em; border-radius: 8px; font-weight: 500; }
+        .profile-logo-preview { width: 100px; height: 100px; object-fit: contain; border-radius: 16px; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .cover-preview { width: 100%; height: 160px; object-fit: cover; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+
+        /* ======== RESPONSIVE MÓVIL ======== */
+        @media (max-width: 768px) {
+            .greeting-title { font-size: 1.5rem; }
+            .top-header { flex-direction: column; align-items: flex-start !important; gap: 15px; }
+            .top-header > div:last-child { width: 100%; justify-content: space-between; }
+            .glass-card { padding: 1.2rem; border-radius: 18px;}
+            .btn-primary { width: 100%; text-align: center; }
+            #viewList .d-flex { flex-direction: column; align-items: stretch !important; gap: 15px; }
+            .input-group { flex-direction: column; }
+            .input-group .form-control, .input-group .form-select { width: 100% !important; max-width: 100% !important; border-radius: 12px !important; margin-bottom: 5px;}
+            .search-icon { display: none; }
+            .search-input { border-radius: 12px !important; border-left: 1px solid rgba(26, 54, 93, 0.15) !important; padding-left: 1rem !important;}
+            .custom-tabs { margin-bottom: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-xxl">
+    
+    <!-- Modern Header -->
+    <div class="top-header d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <p class="greeting-sub">Bienvenido de nuevo 👋</p>
+            <h1 class="greeting-title" id="navUniName">Portal Universidad</h1>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn btn-outline-secondary btn-sm" onclick="logout()"><i class='bx bx-log-out'></i> Salir</button>
+            <div class="profile-badge">
+                <img id="navLogo" src="https://ui-avatars.com/api/?name=Uni&background=1a365d&color=fff" alt="Logo">
+                <span class="fw-medium small" id="navUserName">Contacto</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestañas (Pill Tabs) -->
+    <div class="custom-tabs">
+        <div class="nav-link active" id="tab-programas" onclick="switchTab('programas')">Mis Programas</div>
+        <div class="nav-link" id="tab-perfil" onclick="switchTab('perfil')">Perfil Institucional</div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- VISTA 1: PROGRAMAS                             -->
+    <!-- ============================================== -->
+    <div id="viewProgramas">
+        
+        <!-- Lista -->
+        <div id="viewList" class="glass-card">
+            <!-- Header con Buscador -->
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                <h5 class="fw-bold m-0" style="color:#1a365d;">Catálogo Académico</h5>
+                
+                <div class="d-flex gap-2 w-100" style="max-width: 450px;">
+                    <div class="input-group">
+                        <span class="input-group-text search-icon"><i class='bx bx-search text-muted'></i></span>
+                        <input type="text" id="searchInput" class="form-control search-input" placeholder="Buscar programa..." onkeyup="handleSearch()">
+                    </div>
+                    <button class="btn btn-primary text-nowrap" onclick="showForm()"><i class='bx bx-plus'></i> Nuevo</button>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Título del Programa</th>
+                            <th>Modalidad</th>
+                            <th>Categoría</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr><td colspan="5" class="text-center py-5 opacity-50">Cargando programas...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            <div id="paginationContainer" class="d-flex justify-content-end mt-4 gap-2"></div>
+        </div>
+
+        <!-- Formulario -->
+        <div id="viewForm" style="display: none;">
+            <div class="d-flex align-items-center mb-4">
+                <button class="btn btn-outline-secondary me-3" onclick="showList()"><i class='bx bx-left-arrow-alt fs-5'></i></button>
+                <h4 class="fw-bold m-0 text-institutional" id="formTitle">Agregar Nuevo Programa</h4>
+            </div>
+
+            <div class="glass-card">
+                <form id="maestriaForm" class="needs-validation" novalidate>
+                    <input type="hidden" id="f_fila">
+                    <input type="hidden" id="f_id">
+                    
+                    <div class="alert alert-light border border-info border-opacity-25 rounded-4 d-flex align-items-center mb-4" style="background: rgba(255,255,255,0.5);">
+                        <div class="bg-info bg-opacity-10 p-2 rounded-circle me-3 text-info"><i class='bx bx-info-circle fs-4'></i></div>
+                        <div>
+                            El programa se vinculará a <strong><span id="labelUniName" class="text-dark">Tu Universidad</span></strong> (<span id="labelUniPais">País</span>).
+                        </div>
+                    </div>
+
+                    <h6 class="section-title"><i class='bx bx-book-bookmark'></i> Información Básica</h6>
+                    <div class="row g-3 mb-5">
+                        <div class="col-md-9">
+                            <label class="form-label">Título del Programa*</label>
+                            <input type="text" class="form-control" id="f_titulo" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Tipo*</label>
+                            <select class="form-select" id="f_tipo" required>
+                                <option value="Maestría" selected>Maestría</option>
+                                <option value="Diplomado">Diplomado</option>
+                                <option value="Doctorado">Doctorado</option>
+                                <option value="Curso">Curso Corto</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Modalidad*</label>
+                            <select class="form-select" id="f_modalidad" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="Presencial">Presencial</option>
+                                <option value="Online">Online</option>
+                                <option value="Semipresencial">Semipresencial</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Categoría*</label>
+                            <select class="form-select" id="f_categoria" required></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Especialidad</label>
+                            <select class="form-select" id="f_especialidad"></select>
+                        </div>
+                    </div>
+
+                    <h6 class="section-title"><i class='bx bx-wallet'></i> Detalles Académicos y Financieros</h6>
+                    <div class="row g-3 mb-5">
+                        <div class="col-md-3">
+                            <label class="form-label">Duración</label>
+                            <input type="text" class="form-control" id="f_duracion" placeholder="Ej: 2 años, 6 meses">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Fecha Admisión</label>
+                            <input type="text" class="form-control" id="f_fecha_admision" placeholder="Ej: Marzo 2024, Próximamente...">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Idioma</label>
+                            <select class="form-select" id="f_idioma">
+                                <option value="Español" selected>Español</option>
+                                <option value="Inglés">Inglés</option>
+                                <option value="Portugués">Portugués</option>
+                                <option value="Francés">Francés</option>
+                                <option value="Alemán">Alemán</option>
+                                <option value="Italiano">Italiano</option>
+                                <option value="Mandarín">Mandarín</option>
+                                <option value="Ruso">Ruso</option>
+                                <option value="Japonés">Japonés</option>
+                                <option value="Multilingüe">Multilingüe (Varios)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Título a Otorgar</label>
+                            <input type="text" class="form-control" id="f_titulo_grado" placeholder="Ej: Magíster en...">
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label">Precio</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="f_precio_monto" step="0.01" placeholder="0.00">
+                                <select class="form-select" id="f_precio_moneda" style="max-width: 140px;">
+                                    <option value="USD" selected>USD - Dólar</option>
+                                    <option value="EUR">EUR - Euro</option>
+                                    <option value="MXN">MXN - Peso Méx</option>
+                                    <option value="COP">COP - Peso Col</option>
+                                    <option value="PEN">PEN - Sol Perú</option>
+                                    <option value="ARS">ARS - Peso Arg</option>
+                                    <option value="CLP">CLP - Peso Chi</option>
+                                    <option value="BRL">BRL - Real Bra</option>
+                                    <option value="BOB">BOB - Boliviano</option>
+                                    <option value="PYG">PYG - Guaraní</option>
+                                    <option value="UYU">UYU - Peso Uru</option>
+                                    <option value="GTQ">GTQ - Quetzal</option>
+                                    <option value="DOP">DOP - Peso Dom</option>
+                                    <option value="CRC">CRC - Colón CR</option>
+                                    <option value="PAB">PAB - Balboa</option>
+                                    <option value="VES">VES - Bolívar</option>
+                                    <option value="CAD">CAD - Dólar Can</option>
+                                    <option value="GBP">GBP - Libra</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Créditos</label>
+                            <input type="text" class="form-control" id="f_creditos" placeholder="Ej: 120 ECTS">
+                        </div>
+                    </div>
+
+                    <h6 class="section-title"><i class='bx bx-link'></i> Contenido y Enlaces</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label">URL Imagen Representativa*</label>
+                            <input type="url" class="form-control" id="f_imagen_url" required placeholder="https://...">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">URL del Programa (Web)*</label>
+                            <input type="url" class="form-control" id="f_url_programa" required placeholder="https://...">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">URL Brochure (PDF)</label>
+                            <input type="url" class="form-control" id="f_url_brochure" placeholder="https://...">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Descripción*</label>
+                            <textarea class="form-control" id="f_descripcion" rows="3" required></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Objetivos</label>
+                            <textarea class="form-control" id="f_objetivos" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Plan de Estudios</label>
+                            <textarea class="form-control" id="f_plan_estudios" rows="3"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Requisitos</label>
+                            <textarea class="form-control" id="f_requisitos" rows="2"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end pt-4 mt-3 border-top border-secondary border-opacity-10">
+                        <button type="submit" class="btn btn-primary px-5" id="btnGuardar">
+                            <i class='bx bx-send me-1'></i> Enviar Programa
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- VISTA 2: PERFIL                                -->
+    <!-- ============================================== -->
+    <div id="viewPerfil" class="glass-card" style="display: none;">
+        <h5 class="fw-bold mb-4" style="color:#1a365d;">Perfil Institucional</h5>
+        <form id="perfilForm" class="needs-validation" novalidate>
+            <div class="row g-5">
+                <div class="col-md-4 text-center">
+                    <img src="" id="prev_portada" class="cover-preview d-none">
+                    <img src="" id="prev_logo" class="profile-logo-preview mb-4 d-none">
+                    
+                    <div class="text-start p-3 rounded-4" style="background: rgba(255,255,255,0.5);">
+                        <label class="form-label">URL Logo Institucional</label>
+                        <input type="url" class="form-control mb-3" id="p_logo">
+                        
+                        <label class="form-label">URL Foto de Portada</label>
+                        <input type="url" class="form-control" id="p_portada">
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <h6 class="section-title mb-4"><i class='bx bx-buildings'></i> Datos Generales</h6>
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Nombre de la Institución*</label>
+                            <input type="text" class="form-control" id="p_nombre" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">País*</label>
+                            <input type="text" class="form-control" id="p_pais" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Ciudad</label>
+                            <input type="text" class="form-control" id="p_ciudad">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Descripción de la Universidad</label>
+                            <textarea class="form-control" id="p_descripcion" rows="6"></textarea>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-top border-secondary border-opacity-10 text-end">
+                        <button type="submit" class="btn btn-primary px-5" id="btnGuardarPerfil">Guardar Cambios</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<script>
+    // Configuración global del Toast
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        customClass: { popup: 'glass-card' },
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    });
+
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz84Af737V161Vr38LPSgw4uhA6nzGUAo4kaQ8Uwxf8L0illmA2BN_MeVPuNRLR9Lbh6A/exec'; // <--- ¡Asegúrate de cambiar esto!
+    
+    let userSession = JSON.parse(localStorage.getItem('userSession'));
+    let programasData = [];
+    
+    // Variables para Buscador y Paginación
+    let filteredData = [];
+    let currentPage = 1;
+    const rowsPerPage = 10;
+
+    if (!userSession) window.location.href = 'index.html';
+
+    function updateUIHeaders() {
+        document.getElementById('navUniName').innerText = userSession.uni_nombre || "Configura tu Institución";
+        // CAMBIO: Ahora mostramos el nombre de la universidad o el username en lugar del contacto
+        document.getElementById('navUserName').innerText = userSession.uni_nombre || userSession.username;
+        document.getElementById('labelUniName').innerText = userSession.uni_nombre || "[Falta Nombre]";
+        document.getElementById('labelUniPais').innerText = userSession.pais || "[Falta País]";
+        
+        if(userSession.logo_url) {
+            const logoEl = document.getElementById('navLogo');
+            logoEl.src = userSession.logo_url;
+        }
+    }
+    updateUIHeaders();
+
+    function switchTab(tab) {
+        document.getElementById('tab-programas').classList.remove('active');
+        document.getElementById('tab-perfil').classList.remove('active');
+        document.getElementById('viewProgramas').style.display = 'none';
+        document.getElementById('viewPerfil').style.display = 'none';
+
+        if(tab === 'programas') {
+            document.getElementById('tab-programas').classList.add('active');
+            document.getElementById('viewProgramas').style.display = 'block';
+            showList();
+        } else {
+            document.getElementById('tab-perfil').classList.add('active');
+            document.getElementById('viewPerfil').style.display = 'block';
+            loadProfileData();
+        }
+    }
+
+    // --- PERFIL ---
+    function loadProfileData() {
+        document.getElementById('p_nombre').value = userSession.uni_nombre;
+        document.getElementById('p_pais').value = userSession.pais;
+        document.getElementById('p_ciudad').value = userSession.ciudad;
+        document.getElementById('p_descripcion').value = userSession.descripcion || "";
+        document.getElementById('p_logo').value = userSession.logo_url || "";
+        document.getElementById('p_portada').value = userSession.portada_url || "";
+        updateProfilePreviews();
+    }
+
+    document.getElementById('p_logo').addEventListener('input', updateProfilePreviews);
+    document.getElementById('p_portada').addEventListener('input', updateProfilePreviews);
+
+    function updateProfilePreviews() {
+        const logo = document.getElementById('p_logo').value;
+        const portada = document.getElementById('p_portada').value;
+        const imgLogo = document.getElementById('prev_logo');
+        const imgPortada = document.getElementById('prev_portada');
+
+        if(logo) { imgLogo.src = logo; imgLogo.classList.remove('d-none'); } else { imgLogo.classList.add('d-none'); }
+        if(portada) { imgPortada.src = portada; imgPortada.classList.remove('d-none'); } else { imgPortada.classList.add('d-none'); }
+    }
+
+    document.getElementById('perfilForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        if (!form.checkValidity()) { form.classList.add('was-validated'); return; }
+
+        const btn = document.getElementById('btnGuardarPerfil');
+        btn.innerHTML = 'Actualizando...'; btn.disabled = true;
+
+        userSession.uni_nombre = document.getElementById('p_nombre').value;
+        userSession.pais = document.getElementById('p_pais').value;
+        userSession.ciudad = document.getElementById('p_ciudad').value;
+        userSession.descripcion = document.getElementById('p_descripcion').value;
+        userSession.logo_url = document.getElementById('p_logo').value;
+        userSession.portada_url = document.getElementById('p_portada').value;
+
+        try {
+            const resp = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updateProfile', user: userSession }) });
+            const res = await resp.json();
+            if(res.success) {
+                localStorage.setItem('userSession', JSON.stringify(userSession));
+                updateUIHeaders();
+                Toast.fire({ icon: 'success', title: 'Perfil actualizado correctamente' });
+            }
+        } catch(err) {
+            Toast.fire({ icon: 'error', title: 'Error al actualizar perfil' });
+        }
+        btn.innerHTML = 'Guardar Cambios'; btn.disabled = false;
+    });
+
+    // --- PROGRAMAS ---
+    async function loadProgramsData() {
+        try {
+            const resp = await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                // CAMBIO: Ahora enviamos el username para filtrar
+                body: JSON.stringify({ action: 'getInitialData', username: userSession.username }) 
+            });
+            const data = await resp.json();
+            
+            populateSelect('f_categoria', data.categorias);
+            populateSelect('f_especialidad', data.especialidades);
+            
+            programasData = data.programas;
+            filteredData = [...programasData];
+            document.getElementById('searchInput').value = '';
+            currentPage = 1;
+            renderTable();
+        } catch (e) { console.error(e); }
+    }
+
+    function populateSelect(id, array) {
+        const select = document.getElementById(id);
+        select.innerHTML = '<option value="">Seleccionar...</option>';
+        array.forEach(item => { if(item) select.innerHTML += `<option value="${item}">${item}</option>`; });
+    }
+
+    // Buscador
+    function handleSearch() {
+        const term = document.getElementById('searchInput').value.toLowerCase();
+        filteredData = programasData.filter(p => {
+            return (p.Titulo && p.Titulo.toLowerCase().includes(term)) ||
+                   (p.Categoria && p.Categoria.toLowerCase().includes(term)) ||
+                   (p.Modalidad && p.Modalidad.toLowerCase().includes(term)) ||
+                   (p.Estado && p.Estado.toLowerCase().includes(term));
+        });
+        currentPage = 1;
+        renderTable();
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        
+        if(filteredData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-5"><i class="bx bx-book-open fs-1 d-block mb-2 opacity-50"></i> No se encontraron programas.</td></tr>';
+            renderPagination(0);
+            return;
+        }
+
+        // Lógica de Paginación
+        const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+        if (currentPage > totalPages) currentPage = totalPages;
+        
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const paginatedItems = filteredData.slice(start, end);
+
+        paginatedItems.forEach((p) => {
+            let badgeClass = 'bg-secondary bg-opacity-25 text-secondary';
+            if(p.Estado === 'Publicado') badgeClass = 'bg-success bg-opacity-25 text-success';
+            if(p.Estado === 'En proceso') badgeClass = 'bg-warning bg-opacity-25 text-warning-emphasis';
+
+            // Necesitamos el índice original para Editar/Eliminar
+            const realIndex = programasData.indexOf(p);
+
+            const tr = `<tr>
+                <td class="fw-bold" style="color:#1a365d;">${p.Titulo}</td>
+                <td><span class="text-muted">${p.Modalidad}</span></td>
+                <td><span class="text-muted">${p.Categoria}</span></td>
+                <td><span class="badge ${badgeClass} border border-opacity-25 px-3 py-2"><i class='bx bx-pulse me-1'></i>${p.Estado}</span></td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-light shadow-sm me-1" title="Editar" onclick="editProgram(${realIndex})"><i class='bx bx-edit text-primary'></i></button>
+                    <button class="btn btn-sm btn-light shadow-sm" title="Eliminar" onclick="deleteProgram(${p.fila})"><i class='bx bx-trash text-danger'></i></button>
+                </td>
+            </tr>`;
+            tbody.innerHTML += tr;
+        });
+
+        renderPagination(totalPages);
+    }
+
+    // Renderizar Controles de Paginación
+    function renderPagination(totalPages) {
+        const container = document.getElementById('paginationContainer');
+        container.innerHTML = '';
+        if (totalPages <= 1) return; // Ocultar si solo hay 1 página
+
+        // Botón Anterior
+        const btnPrev = document.createElement('button');
+        btnPrev.className = `btn btn-outline-secondary pagination-btn ${currentPage === 1 ? 'disabled' : ''}`;
+        btnPrev.innerHTML = '<i class="bx bx-chevron-left fs-5"></i>';
+        btnPrev.onclick = () => { if(currentPage > 1) { currentPage--; renderTable(); } };
+        container.appendChild(btnPrev);
+
+        // Números de Página
+        for (let i = 1; i <= totalPages; i++) {
+            const btnPage = document.createElement('button');
+            btnPage.className = `btn pagination-btn ${currentPage === i ? 'btn-primary' : 'btn-outline-secondary'}`;
+            btnPage.innerText = i;
+            btnPage.onclick = () => { currentPage = i; renderTable(); };
+            container.appendChild(btnPage);
+        }
+
+        // Botón Siguiente
+        const btnNext = document.createElement('button');
+        btnNext.className = `btn btn-outline-secondary pagination-btn ${currentPage === totalPages ? 'disabled' : ''}`;
+        btnNext.innerHTML = '<i class="bx bx-chevron-right fs-5"></i>';
+        btnNext.onclick = () => { if(currentPage < totalPages) { currentPage++; renderTable(); } };
+        container.appendChild(btnNext);
+    }
+
+    function showForm() {
+        if (!userSession.uni_nombre || userSession.uni_nombre.trim() === "" || !userSession.pais || userSession.pais.trim() === "") {
+            Swal.fire({ icon: 'warning', title: 'Perfil Incompleto', text: 'Debes registrar el Nombre de tu Institución y el País antes de poder crear programas.', confirmButtonColor: '#ec8028', customClass:{popup:'glass-card'}}).then(() => { switchTab('perfil'); });
+            return;
+        }
+        document.getElementById('viewList').style.display = 'none';
+        document.getElementById('viewForm').style.display = 'block';
+        document.getElementById('maestriaForm').reset();
+        document.getElementById('f_fila').value = '';
+        document.getElementById('f_id').value = '';
+        document.getElementById('formTitle').innerText = 'Agregar Nuevo Programa';
+        document.getElementById('maestriaForm').classList.remove('was-validated');
+    }
+
+    function showList() {
+        document.getElementById('viewForm').style.display = 'none';
+        document.getElementById('viewList').style.display = 'block';
+    }
+
+    function editProgram(index) {
+        const p = programasData[index];
+        showForm();
+        document.getElementById('formTitle').innerText = 'Editar Programa';
+        document.getElementById('f_fila').value = p.fila;
+        document.getElementById('f_id').value = p.ID;
+        document.getElementById('f_titulo').value = p.Titulo;
+        document.getElementById('f_modalidad').value = p.Modalidad;
+        document.getElementById('f_tipo').value = p.Tipo;
+        document.getElementById('f_categoria').value = p.Categoria;
+        document.getElementById('f_especialidad').value = p.Especialidad;
+        document.getElementById('f_duracion').value = p.Duracion;
+        document.getElementById('f_fecha_admision').value = p.Fecha_Admision;
+        document.getElementById('f_idioma').value = p.Idioma;
+        document.getElementById('f_titulo_grado').value = p.Titulo_Grado;
+        document.getElementById('f_precio_monto').value = p.Precio_Monto;
+        document.getElementById('f_precio_moneda').value = p.Precio_Moneda;
+        document.getElementById('f_creditos').value = p.Creditos;
+        document.getElementById('f_imagen_url').value = p.Imagen_URL;
+        document.getElementById('f_url_programa').value = p.URL_Programa;
+        document.getElementById('f_url_brochure').value = p.URL_Brochure;
+        document.getElementById('f_descripcion').value = p.Descripcion;
+        document.getElementById('f_objetivos').value = p.Objetivos;
+        document.getElementById('f_plan_estudios').value = p.Plan_Estudios;
+        document.getElementById('f_requisitos').value = p.Requisitos;
+    }
+
+    document.getElementById('maestriaForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        if (!form.checkValidity()) { form.classList.add('was-validated'); return; }
+
+        const btn = document.getElementById('btnGuardar');
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Guardando...'; btn.disabled = true;
+
+        const payload = {
+            action: 'saveProgram',
+            programa: {
+                fila: document.getElementById('f_fila').value, 
+                id: document.getElementById('f_id').value,
+                // CAMBIO: id_universidad ahora es el username del usuario logueado
+                id_universidad: userSession.username, 
+                titulo: document.getElementById('f_titulo').value,
+                modalidad: document.getElementById('f_modalidad').value, 
+                tipo: document.getElementById('f_tipo').value,
+                categoria: document.getElementById('f_categoria').value, 
+                especialidad: document.getElementById('f_especialidad').value,
+                nombre_universidad: userSession.uni_nombre, 
+                pais: userSession.pais, 
+                ciudad: userSession.ciudad,
+                duracion: document.getElementById('f_duracion').value, 
+                fecha_admision: document.getElementById('f_fecha_admision').value,
+                idioma: document.getElementById('f_idioma').value, 
+                titulo_grado: document.getElementById('f_titulo_grado').value,
+                precio_monto: document.getElementById('f_precio_monto').value, 
+                precio_moneda: document.getElementById('f_precio_moneda').value,
+                creditos: document.getElementById('f_creditos').value, 
+                imagen_url: document.getElementById('f_imagen_url').value,
+                url_programa: document.getElementById('f_url_programa').value, 
+                url_brochure: document.getElementById('f_url_brochure').value,
+                descripcion: document.getElementById('f_descripcion').value, 
+                objetivos: document.getElementById('f_objetivos').value,
+                plan_estudios: document.getElementById('f_plan_estudios').value, 
+                requisitos: document.getElementById('f_requisitos').value
+            }
+        };
+
+        try {
+            const resp = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+            const result = await resp.json();
+            if(result.success) {
+                Toast.fire({ icon: 'success', title: 'Programa enviado a revisión' });
+                showList(); loadProgramsData();
+            } else { Toast.fire({ icon: 'error', title: result.message || 'Ocurrió un error' }); }
+        } catch(e) { Toast.fire({ icon: 'error', title: 'Error de conexión' }); }
+        btn.innerHTML = '<i class="bx bx-send me-1"></i> Enviar Programa'; btn.disabled = false;
+    });
+
+    function deleteProgram(fila) {
+        Swal.fire({
+            title: '¿Eliminar Programa?', text: "Esta acción no se puede deshacer.", icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#ec8028', cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, eliminar', cancelButtonText: 'Cancelar', customClass:{popup:'glass-card'}
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteProgram', fila: fila }) });
+                    Toast.fire({ icon: 'success', title: 'Programa eliminado' });
+                    loadProgramsData();
+                } catch(e) { Toast.fire({ icon: 'error', title: 'No se pudo eliminar' }); }
+            }
+        });
+    }
+
+    function logout() { localStorage.removeItem('userSession'); window.location.href = 'index.html'; }
+    loadProgramsData();
+</script>
+</body>
+</html>
