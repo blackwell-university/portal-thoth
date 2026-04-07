@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Institucional - Ingreso</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 50%, #fef5ed 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 20px 40px rgba(26, 54, 93, 0.08);
+            overflow: hidden;
+        }
+        .text-institutional { color: #1a365d; }
+        .form-control {
+            border-radius: 15px;
+            border: 1px solid rgba(26, 54, 93, 0.1);
+            padding: 0.8rem 1.2rem;
+            background: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+        }
+        .form-control:focus {
+            border-color: #ec8028;
+            box-shadow: 0 0 0 4px rgba(236, 128, 40, 0.1);
+            background: #fff;
+        }
+        .input-group-text {
+            border-radius: 15px 0 0 15px;
+            border: 1px solid rgba(26, 54, 93, 0.1);
+            background: rgba(255, 255, 255, 0.5);
+            border-right: none;
+            color: #1a365d;
+        }
+        .form-control { border-left: none; }
+        .btn-primary {
+            background-color: #ec8028;
+            border: none;
+            border-radius: 15px;
+            padding: 0.8rem;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 8px 20px rgba(236, 128, 40, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #d16d1f;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(236, 128, 40, 0.4);
+        }
+        .icon-container {
+            width: 70px; height: 70px;
+            background: linear-gradient(135deg, #1a365d, #2a5298);
+            color: white;
+            border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1.5rem auto;
+            box-shadow: 0 10px 20px rgba(26, 54, 93, 0.2);
+        }
+        
+        /* Ajustes Móvil */
+        @media (max-width: 576px) {
+            .glass-card { padding: 2rem 1.5rem !important; border-radius: 20px; }
+            .container { padding: 0 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+            <div class="glass-card p-5">
+                <div class="text-center mb-4">
+                    <div class="icon-container">
+                        <i class='bx bxs-graduation'></i>
+                    </div>
+                    <h3 class="fw-bold text-institutional mb-1">Portal B2B</h3>
+                    <p class="text-muted small">Gestión de Programas Académicos</p>
+                </div>
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label class="form-label text-institutional fw-medium small ms-1">Usuario</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class='bx bx-user'></i></span>
+                            <input type="text" id="username" class="form-control" placeholder="Ingresa tu usuario" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label text-institutional fw-medium small ms-1">Contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class='bx bx-lock-alt'></i></span>
+                            <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-2" id="btnLogin">
+                        Ingresar al Sistema
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Configuración global del Toast
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        customClass: { popup: 'glass-card' }
+    });
+
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz84Af737V161Vr38LPSgw4uhA6nzGUAo4kaQ8Uwxf8L0illmA2BN_MeVPuNRLR9Lbh6A/exec'; // <--- ¡Asegúrate de cambiar esto!
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btnLogin');
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Verificando...';
+        btn.disabled = true;
+
+        const data = { action: 'login', username: document.getElementById('username').value, password: document.getElementById('password').value };
+
+        try {
+            const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
+            const result = await response.json();
+
+            if (result.success) {
+                localStorage.setItem('userSession', JSON.stringify(result.user));
+                window.location.href = 'dashboard.html';
+            } else {
+                Toast.fire({ icon: 'error', title: result.message });
+                btn.innerHTML = 'Ingresar al Sistema'; btn.disabled = false;
+            }
+        } catch (error) {
+            Toast.fire({ icon: 'error', title: 'Error de conexión' });
+            btn.innerHTML = 'Ingresar al Sistema'; btn.disabled = false;
+        }
+    });
+</script>
+</body>
+</html>
