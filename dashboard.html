@@ -407,7 +407,7 @@
     function updateUIHeaders() {
         document.getElementById('navUniName').innerText = userSession.uni_nombre || "Configura tu Institución";
         // CAMBIO: Ahora mostramos el nombre de la universidad o el username en lugar del contacto
-        document.getElementById('navUserName').innerText = userSession.uni_nombre || userSession.username;
+        document.getElementById('navUserName').innerText = userSession.username;
         document.getElementById('labelUniName').innerText = userSession.uni_nombre || "[Falta Nombre]";
         document.getElementById('labelUniPais').innerText = userSession.pais || "[Falta País]";
         
