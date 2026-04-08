@@ -89,6 +89,23 @@
         .profile-logo-preview { width: 100px; height: 100px; object-fit: contain; border-radius: 16px; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .cover-preview { width: 100%; height: 160px; object-fit: cover; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
 
+        /* PREVIEW IMAGENES FORMULARIO */
+        .img-preview-mini {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-top: 8px;
+            cursor: pointer;
+            border: 1px dashed rgba(26, 54, 93, 0.2);
+            transition: transform 0.2s ease;
+            background: rgba(255,255,255,0.4);
+        }
+        .img-preview-mini:hover {
+            transform: scale(1.02);
+            border-color: #ec8028;
+        }
+
         /* ======== RESPONSIVE MÓVIL ======== */
         @media (max-width: 768px) {
             .greeting-title { font-size: 1.5rem; }
@@ -286,19 +303,38 @@
                     </div>
 
                     <h6 class="section-title"><i class='bx bx-link'></i> Contenido y Enlaces</h6>
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-4">
+                    <div class="row g-3 mb-4 text-start">
+                        <div class="col-md-6">
                             <label class="form-label">URL Imagen Representativa*</label>
-                            <input type="url" class="form-control" id="f_imagen_url" required placeholder="https://...">
+                            <div class="input-group">
+                                <input type="url" class="form-control" id="f_imagen_url" required placeholder="https://..." oninput="updateProgPreview('f_imagen_url', 'p_prog_img_prev')">
+                                <!-- Botón para subir archivo a la memoria -->
+                                <label class="btn btn-outline-primary" for="upload_img">
+                                    <i class='bx bx-upload'></i>
+                                    <input type="file" id="upload_img" hidden accept="image/*" onchange="handleFileSelect(this, 'f_imagen_url', 'p_prog_img_prev', 'img')">
+                                </label>
+                            </div>
+                            <img id="p_prog_img_prev" class="img-preview-mini d-none" title="Click para ampliar" onclick="expandImage(this.src)">
                         </div>
-                        <div class="col-md-4">
+
+                        <div class="col-md-6">
+                            <label class="form-label">URL Brochure (PDF)</label>
+                            <div class="input-group">
+                                <input type="url" class="form-control" id="f_url_brochure" placeholder="https://...">
+                                <!-- Botón para subir archivo a la memoria (Solo PDF, sin prev) -->
+                                <label class="btn btn-outline-primary" for="upload_brochure">
+                                    <i class='bx bx-upload'></i>
+                                    <input type="file" id="upload_brochure" hidden accept=".pdf,application/pdf" onchange="handleFileSelect(this, 'f_url_brochure', null, 'brochure')">
+                                </label>
+                            </div>
+                            <!-- Se eliminó el <img> de la previsualización del Brochure -->
+                        </div>
+
+                        <div class="col-md-12">
                             <label class="form-label">URL del Programa (Web)*</label>
                             <input type="url" class="form-control" id="f_url_programa" required placeholder="https://...">
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label">URL Brochure (PDF)</label>
-                            <input type="url" class="form-control" id="f_url_brochure" placeholder="https://...">
-                        </div>
+                        
                         <div class="col-12">
                             <label class="form-label">Descripción*</label>
                             <textarea class="form-control" id="f_descripcion" rows="3" required></textarea>
@@ -392,21 +428,22 @@
         }
     });
 
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz84Af737V161Vr38LPSgw4uhA6nzGUAo4kaQ8Uwxf8L0illmA2BN_MeVPuNRLR9Lbh6A/exec'; // <--- ¡Asegúrate de cambiar esto!
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz84Af737V161Vr38LPSgw4uhA6nzGUAo4kaQ8Uwxf8L0illmA2BN_MeVPuNRLR9Lbh6A/exec'; 
     
     let userSession = JSON.parse(localStorage.getItem('userSession'));
     let programasData = [];
     
-    // Variables para Buscador y Paginación
     let filteredData = [];
     let currentPage = 1;
     const rowsPerPage = 10;
+
+    // Almacenamiento local de archivos pendientes por subir
+    let pendingUploads = { img: null, brochure: null };
 
     if (!userSession) window.location.href = 'index.html';
 
     function updateUIHeaders() {
         document.getElementById('navUniName').innerText = userSession.uni_nombre || "Configura tu Institución";
-        // CAMBIO: Ahora mostramos el nombre de la universidad o el username en lugar del contacto
         document.getElementById('navUserName').innerText = userSession.username;
         document.getElementById('labelUniName').innerText = userSession.uni_nombre || "[Falta Nombre]";
         document.getElementById('labelUniPais').innerText = userSession.pais || "[Falta País]";
@@ -433,6 +470,94 @@
             document.getElementById('viewPerfil').style.display = 'block';
             loadProfileData();
         }
+    }
+
+    // --- FUNCIONES DE PREVISUALIZACIÓN ---
+    function updateProgPreview(inputId, imgId) {
+        const url = document.getElementById(inputId).value;
+        const img = document.getElementById(imgId);
+        // Evitamos sobreescribir si es un archivo local pendiente
+        if (url && url.startsWith('[Archivo Local]')) return; 
+
+        if (url && (url.match(/\.(jpeg|jpg|gif|png|webp)$/) != null || url.includes('images') || url.includes('img') || url.includes('drive'))) {
+            if(img) {
+                img.src = url;
+                img.classList.remove('d-none');
+            }
+        } else {
+            if(img) img.classList.add('d-none');
+        }
+    }
+
+    function expandImage(src) {
+        Swal.fire({
+            imageUrl: src,
+            imageAlt: 'Vista previa',
+            showConfirmButton: false,
+            background: 'rgba(255,255,255,0.9)',
+            backdrop: `rgba(26,54,93,0.4) blur(4px)`,
+            customClass: { popup: 'glass-card' }
+        });
+    }
+
+    // --- ALMACENAR ARCHIVOS LOCALMENTE (Para subir al guardar) ---
+    function handleFileSelect(fileInput, targetInputId, previewImgId, uploadKey) {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            
+            // Solo intentamos actualizar la preview si existe el ID de la imagen
+            if (previewImgId) {
+                const preview = document.getElementById(previewImgId);
+                if (preview) {
+                    if(file.type.includes('pdf')) {
+                        preview.src = 'https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg';
+                    } else {
+                        preview.src = e.target.result;
+                    }
+                    preview.classList.remove('d-none');
+                }
+            }
+            
+            // Guardar en memoria para subir al finalizar
+            pendingUploads[uploadKey] = {
+                base64: e.target.result.split(',')[1],
+                fileName: file.name,
+                mimeType: file.type
+            };
+
+            // Cambiar el input temporalmente a texto para pasar validación de URL HTML5
+            const targetInput = document.getElementById(targetInputId);
+            targetInput.type = 'text'; 
+            targetInput.removeAttribute('required'); 
+            targetInput.value = `[Archivo Local Listo]: ${file.name}`;
+            targetInput.readOnly = true; 
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // --- FUNCIONES DE SUBIDA A DRIVE ---
+    async function uploadToGoogleDrive(fileObj) {
+        const payload = {
+            action: "uploadFile",
+            base64: fileObj.base64,
+            fileName: fileObj.fileName,
+            mimeType: fileObj.mimeType
+        };
+        const resp = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+        const textResponse = await resp.text();
+        
+        let result;
+        try {
+            result = JSON.parse(textResponse);
+        } catch(e) {
+            throw new Error("El servidor no respondió correctamente al guardar. Revisa Google Apps Script.");
+        }
+
+        if(!result.success) throw new Error(result.message);
+        return result.url;
     }
 
     // --- PERFIL ---
@@ -493,7 +618,6 @@
         try {
             const resp = await fetch(SCRIPT_URL, { 
                 method: 'POST', 
-                // CAMBIO: Ahora enviamos el username para filtrar
                 body: JSON.stringify({ action: 'getInitialData', username: userSession.username }) 
             });
             const data = await resp.json();
@@ -538,7 +662,6 @@
             return;
         }
 
-        // Lógica de Paginación
         const totalPages = Math.ceil(filteredData.length / rowsPerPage);
         if (currentPage > totalPages) currentPage = totalPages;
         
@@ -551,7 +674,6 @@
             if(p.Estado === 'Publicado') badgeClass = 'bg-success bg-opacity-25 text-success';
             if(p.Estado === 'En proceso') badgeClass = 'bg-warning bg-opacity-25 text-warning-emphasis';
 
-            // Necesitamos el índice original para Editar/Eliminar
             const realIndex = programasData.indexOf(p);
 
             const tr = `<tr>
@@ -570,20 +692,17 @@
         renderPagination(totalPages);
     }
 
-    // Renderizar Controles de Paginación
     function renderPagination(totalPages) {
         const container = document.getElementById('paginationContainer');
         container.innerHTML = '';
-        if (totalPages <= 1) return; // Ocultar si solo hay 1 página
+        if (totalPages <= 1) return;
 
-        // Botón Anterior
         const btnPrev = document.createElement('button');
         btnPrev.className = `btn btn-outline-secondary pagination-btn ${currentPage === 1 ? 'disabled' : ''}`;
         btnPrev.innerHTML = '<i class="bx bx-chevron-left fs-5"></i>';
         btnPrev.onclick = () => { if(currentPage > 1) { currentPage--; renderTable(); } };
         container.appendChild(btnPrev);
 
-        // Números de Página
         for (let i = 1; i <= totalPages; i++) {
             const btnPage = document.createElement('button');
             btnPage.className = `btn pagination-btn ${currentPage === i ? 'btn-primary' : 'btn-outline-secondary'}`;
@@ -592,12 +711,31 @@
             container.appendChild(btnPage);
         }
 
-        // Botón Siguiente
         const btnNext = document.createElement('button');
         btnNext.className = `btn btn-outline-secondary pagination-btn ${currentPage === totalPages ? 'disabled' : ''}`;
         btnNext.innerHTML = '<i class="bx bx-chevron-right fs-5"></i>';
         btnNext.onclick = () => { if(currentPage < totalPages) { currentPage++; renderTable(); } };
         container.appendChild(btnNext);
+    }
+
+    // --- MANEJO DEL FORMULARIO ---
+    function resetFormState() {
+        // Limpiar subidas pendientes en memoria
+        pendingUploads = { img: null, brochure: null };
+        
+        // Restaurar estado de inputs de URL (por si estaban bloqueados con archivo local)
+        const imgInput = document.getElementById('f_imagen_url');
+        const broInput = document.getElementById('f_url_brochure');
+        
+        imgInput.type = 'url';
+        imgInput.readOnly = false;
+        
+        broInput.type = 'url';
+        broInput.readOnly = false;
+
+        document.getElementById('p_prog_img_prev').classList.add('d-none');
+        // Previsualización brochure eliminada
+        document.getElementById('maestriaForm').classList.remove('was-validated');
     }
 
     function showForm() {
@@ -611,7 +749,7 @@
         document.getElementById('f_fila').value = '';
         document.getElementById('f_id').value = '';
         document.getElementById('formTitle').innerText = 'Agregar Nuevo Programa';
-        document.getElementById('maestriaForm').classList.remove('was-validated');
+        resetFormState();
     }
 
     function showList() {
@@ -644,56 +782,100 @@
         document.getElementById('f_objetivos').value = p.Objetivos;
         document.getElementById('f_plan_estudios').value = p.Plan_Estudios;
         document.getElementById('f_requisitos').value = p.Requisitos;
+
+        // Activar previsualizaciones si existen URLs
+        updateProgPreview('f_imagen_url', 'p_prog_img_prev');
+        // updateProgPreview para brochure fue eliminado
     }
 
     document.getElementById('maestriaForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const form = e.target;
+        
+        // Validación manual de la imagen (por si la borraron pero no pusieron archivo local)
+        const imgInput = document.getElementById('f_imagen_url');
+        if (!imgInput.value && !pendingUploads.img) {
+            imgInput.setAttribute('required', 'true');
+            imgInput.type = 'url';
+        }
+
         if (!form.checkValidity()) { form.classList.add('was-validated'); return; }
 
         const btn = document.getElementById('btnGuardar');
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Guardando...'; btn.disabled = true;
-
-        const payload = {
-            action: 'saveProgram',
-            programa: {
-                fila: document.getElementById('f_fila').value, 
-                id: document.getElementById('f_id').value,
-                // CAMBIO: id_universidad ahora es el username del usuario logueado
-                id_universidad: userSession.username, 
-                titulo: document.getElementById('f_titulo').value,
-                modalidad: document.getElementById('f_modalidad').value, 
-                tipo: document.getElementById('f_tipo').value,
-                categoria: document.getElementById('f_categoria').value, 
-                especialidad: document.getElementById('f_especialidad').value,
-                nombre_universidad: userSession.uni_nombre, 
-                pais: userSession.pais, 
-                ciudad: userSession.ciudad,
-                duracion: document.getElementById('f_duracion').value, 
-                fecha_admision: document.getElementById('f_fecha_admision').value,
-                idioma: document.getElementById('f_idioma').value, 
-                titulo_grado: document.getElementById('f_titulo_grado').value,
-                precio_monto: document.getElementById('f_precio_monto').value, 
-                precio_moneda: document.getElementById('f_precio_moneda').value,
-                creditos: document.getElementById('f_creditos').value, 
-                imagen_url: document.getElementById('f_imagen_url').value,
-                url_programa: document.getElementById('f_url_programa').value, 
-                url_brochure: document.getElementById('f_url_brochure').value,
-                descripcion: document.getElementById('f_descripcion').value, 
-                objetivos: document.getElementById('f_objetivos').value,
-                plan_estudios: document.getElementById('f_plan_estudios').value, 
-                requisitos: document.getElementById('f_requisitos').value
-            }
-        };
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Procesando...'; btn.disabled = true;
 
         try {
+            // 1. SUBIR ARCHIVOS PENDIENTES PRIMERO
+            if (pendingUploads.img) {
+                Toast.fire({ icon: 'info', title: 'Subiendo imagen...', timer: false });
+                const urlImg = await uploadToGoogleDrive(pendingUploads.img);
+                imgInput.value = urlImg; // Reemplazamos "[Archivo Local...]" por URL Real
+                pendingUploads.img = null;
+            }
+            
+            const broInput = document.getElementById('f_url_brochure');
+            if (pendingUploads.brochure) {
+                Toast.fire({ icon: 'info', title: 'Subiendo brochure...', timer: false });
+                const urlBro = await uploadToGoogleDrive(pendingUploads.brochure);
+                broInput.value = urlBro;
+                pendingUploads.brochure = null;
+            }
+
+            // Restaurar inputs (escondidos o convertidos) para evitar errores futuros
+            imgInput.type = 'url'; imgInput.readOnly = false;
+            broInput.type = 'url'; broInput.readOnly = false;
+
+            // 2. GUARDAR DATOS EN HOJA
+            Toast.fire({ icon: 'info', title: 'Guardando datos del programa...', timer: false });
+
+            const payload = {
+                action: 'saveProgram',
+                programa: {
+                    fila: document.getElementById('f_fila').value, 
+                    id: document.getElementById('f_id').value,
+                    id_universidad: userSession.username, 
+                    titulo: document.getElementById('f_titulo').value,
+                    modalidad: document.getElementById('f_modalidad').value, 
+                    tipo: document.getElementById('f_tipo').value,
+                    categoria: document.getElementById('f_categoria').value, 
+                    especialidad: document.getElementById('f_especialidad').value,
+                    nombre_universidad: userSession.uni_nombre, 
+                    pais: userSession.pais, 
+                    ciudad: userSession.ciudad,
+                    duracion: document.getElementById('f_duracion').value, 
+                    fecha_admision: document.getElementById('f_fecha_admision').value,
+                    idioma: document.getElementById('f_idioma').value, 
+                    titulo_grado: document.getElementById('f_titulo_grado').value,
+                    precio_monto: document.getElementById('f_precio_monto').value, 
+                    precio_moneda: document.getElementById('f_precio_moneda').value,
+                    creditos: document.getElementById('f_creditos').value, 
+                    imagen_url: document.getElementById('f_imagen_url').value, // Ya tiene la URL real aquí
+                    url_programa: document.getElementById('f_url_programa').value, 
+                    url_brochure: document.getElementById('f_url_brochure').value, // Ya tiene la URL real aquí
+                    descripcion: document.getElementById('f_descripcion').value, 
+                    objetivos: document.getElementById('f_objetivos').value,
+                    plan_estudios: document.getElementById('f_plan_estudios').value, 
+                    requisitos: document.getElementById('f_requisitos').value
+                }
+            };
+
             const resp = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-            const result = await resp.json();
+            const textResponse = await resp.text();
+            
+            let result;
+            try {
+                result = JSON.parse(textResponse);
+            } catch(e) {
+                throw new Error("El servidor no respondió correctamente al guardar. Revisa Google Apps Script.");
+            }
+
             if(result.success) {
-                Toast.fire({ icon: 'success', title: 'Programa enviado a revisión' });
+                Toast.fire({ icon: 'success', title: 'Programa enviado a revisión', timer: 3000 });
                 showList(); loadProgramsData();
-            } else { Toast.fire({ icon: 'error', title: result.message || 'Ocurrió un error' }); }
-        } catch(e) { Toast.fire({ icon: 'error', title: 'Error de conexión' }); }
+            } else { Toast.fire({ icon: 'error', title: result.message || 'Ocurrió un error', timer: 3000 }); }
+        } catch(e) { 
+            Toast.fire({ icon: 'error', title: e.message || 'Error de conexión', timer: 5000 }); 
+        }
         btn.innerHTML = '<i class="bx bx-send me-1"></i> Enviar Programa'; btn.disabled = false;
     });
 
